@@ -19,7 +19,7 @@ if( !(isset($_GET['year'])) && !isset($_GET['month']) && !isset($_GET['day'])  )
         $month = $_GET['month'];
         $day = $_GET['day'];
 
-        $dbh = new PDO('mysql:host=localhost;dbname=javascriptlabo', "root", "fca-1995");
+        $dbh = new PDO('mysql:host=localhost;dbname=javascriptlabo', "root", "");
         $ldate = $year . '-'.str_pad($month, 2, 0, STR_PAD_LEFT) .'-'.str_pad($day, 2, 0, STR_PAD_LEFT);
 
         $query = $dbh->prepare('SELECT * FROM events WHERE date = ?');
