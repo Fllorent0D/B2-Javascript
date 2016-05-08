@@ -1,0 +1,38 @@
+body{
+    padding-top: 80px;
+}#calendar td, th
+ {
+     text-align: right;
+ }
+ #calendar td div
+ {
+     margin-top: 5px;
+ }
+#calendar tbody > tr
+{
+    height : 80px;
+}
+#calendar
+{
+    table-layout: fixed;
+}
+#fadeIn {
+    -vendor-animation-duration: 0.5s;
+}
+#fadeOut {
+    -vendor-animation-duration: 0.5s;
+}
+.btn:focus {outline:0!important;}
+.btn {
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+.badge-success{
+    background-color: #368bf2;
+}
+.event
+{
+    z-index: 1000;
+    height: 25px;
+    text-align: left;
+    display: block;
+}
