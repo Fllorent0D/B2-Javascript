@@ -20,7 +20,7 @@ if(isset($_GET['month']) && isset($_GET['year']))
     $year = $_GET['year'];
     $events = [];
     try {
-        $dbh = new PDO('mysql:host=localhost;dbname=javascriptlabo', "root", "fca-1995");
+        $dbh = new PDO('mysql:host=localhost;dbname=javascriptlabo', "root", "");
         foreach($dbh->query('SELECT * from events') as $row) {
             array_push($events, ["id" => $row["id"], "date" => $row["date"], "title" => $row["titre"], 'color' => $row['couleur'], 'link' => '#']);
         }
