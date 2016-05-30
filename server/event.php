@@ -15,6 +15,7 @@ if( !(isset($_GET['year'])) && !isset($_GET['month']) && !isset($_GET['day'])  )
     $id = $_GET['id'];
 
     try {
+
         $year = $_GET['year'];
         $month = $_GET['month'];
         $day = $_GET['day'];
@@ -24,9 +25,12 @@ if( !(isset($_GET['year'])) && !isset($_GET['month']) && !isset($_GET['day'])  )
 
         $query = $dbh->prepare('SELECT * FROM events WHERE date = ?');
         $query->execute([$ldate]);
+
         $result = $query->fetchAll(PDO::FETCH_OBJ);
+
         header('Content-Type: application/json');
         echo json_encode(($result));
+
     } catch (PDOException $e) {
         print "Erreur : " . $e->getMessage() . "<br/>";
         die();
