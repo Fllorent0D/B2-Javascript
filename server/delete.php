@@ -10,7 +10,7 @@ if( !(isset($_POST['id'])) )
 
     try {
 
-        $dbh = new PDO('mysql:host=localhost;dbname=javascriptlabo', "root", "fca-1995");
+        $dbh = new PDO('mysql:host=localhost;dbname=javascriptlabo', "root", "root");
 
         $query = $dbh->prepare('DELETE FROM events WHERE id = ?');
         $query->execute([$id]);

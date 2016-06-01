@@ -2,6 +2,11 @@ months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Ao�
 var oldMonth;
 var oldYear;
 
+function formatPicker (state) {
+    console.log(state);
+    var $state = $('<span class="dots"><span class="text-'+state.id+'">.</span><span class="text"> '+state.text+'</span></span>');
+    return $state;
+}
 $(function(){
     for(var i = 1; i <= 12; i++)
         $('#months').append('<li><a href="#" data-month="'+i+'">'+ months[i-1] +'</a></li>');
@@ -11,17 +16,28 @@ $(function(){
         $('#years').append('<li><a href="#" data-year="'+i+'">'+ i +'</a></li>');
     }
     today();
-    $('#inputDate').datepicker({
+    $(".colorPicker").select2({
+        minimumResultsForSearch: Infinity,
+        templateResult: formatPicker
+    });
+
+    $('#editdate').datepicker({
         format: "dd/mm/yyyy",
         language: "fr",
         orientation: "bottom left"
-    });});
+    });
+
+    refreshCalendar();
+
+});
 
 $('#months').on('click', 'a',function() {
     setMonth($(this).data('month'));
+    refreshCalendar()
 });
 $('#years').on('click', 'a',function() {
     setYear($(this).data('year'));
+    refreshCalendar()
 });
 $('#next').click(function(){
     nextMonth();
@@ -89,6 +105,8 @@ $('.calendar').on('click','td', function(){
                 {
                     $('#accordion').append('<hr class="separator"><h4 class="text-center">Pas d\'évènements ce jour</h4>')
                 }
+                $('#accordion').append('<div class="row text-center"><h4 class="addEvent"><i class="fa fa-plus-circle fa-2x" style="cursor: pointer;"></i></h4></div>');
+
                 $('#accordion').animateCss('fadeIn');
 
         });
@@ -100,19 +118,134 @@ $("#accordion").on('click', '.deleteEvent', function(e){
     $('#deleteModal').modal('show');
 });
 $("#accordion").on('click', '.editEvent', function(e){
+    var id = $(e.target).data("id");
     $("#editTitleModal").html("Modifier '"+$("#event"+ $(e.target).data("id") +" a").html()+"'");
-    $("#saveBtn").data("id", $(e.target).data("id"));
+    $("#saveBtn").attr("data-id", id);
+
+    $("#editModal #editdate").val(zeroPad($(".current .date").html(),2)+"/"+zeroPad(getMonth(),2)+"/"+getYear());
+    $("#editModal #edittitre").val($("#event"+id+" a").html());
+    $("#editModal #editdescription").val($("#collapse"+id+" .panel-body").html());
+
     $('#editModal').modal('show');
 });
+function zeroPad(num, places) {
+    var zero = places - num.toString().length + 1;
+    return Array(+(zero > 0 && zero)).join("0") + num;
+}
+$('body').on('click', '.addEvent', function(e){
+    $("#editTitleModal").html("Ajouter un évènement");
+    $("#saveBtn").removeAttr("data-id");
+    $('#editModal input').each(function(){
+        $('*.form-group').removeClass('has-error').removeClass('has-success');
+        $('*.form-control').val("");
+        $('*.error').html('');
+    });
+
+    if($(".current").length > 0)
+        $("#editModal #editdate").val(zeroPad($(".current .date").html(),2)+"/"+zeroPad(getMonth(),2)+"/"+getYear())
+
+    $('#editModal').modal('show');
+});
+$('#saveBtn').click(function(e){
+    console.log($(e.target).attr("data-id"));
+    if(!isNaN($(e.target).attr("data-id"))){
+        $.ajax({
+            type: "POST",
+            url: 'server/editEvent.php',
+            data: {
+                id:$(e.target).attr("data-id"),
+                titre:$("#editModal #edittitre").val(),
+                description:$("#editModal #editdescription").val(),
+                couleur:$("#editModal #editcouleur").val(),
+                date:$("#editModal #editdate").val()
+            }
+        })
+
+            .done(function(data){
+                if(data != true)
+                {
+                    $('#editModal input').each(function(){
+                        $('*.form-group').removeClass('has-error').addClass('has-success');
+                        $('*.error').html('');
+                    });
+                    $.each(data,function(index, value){
+                        console.log($("#editModal #edit"+index).parent());
+                        $("#editModal #edit"+index).parent().addClass('has-error');
+                        $("#editModal #edit"+index +' ~ .error').html(value);
+                        $("#editModal #edit"+index).animateCss("shake");
+                    });
+                }
+                else {
+                    $('#editModal').modal('hide');
+                    setMonth($("#editModal #editdate").val().substr(3,2));
+                    console.log($("#editModal #editdate").val().substr(3,2));
+                    setYear($("#editModal #editdate").val().substr(6, 4));
+                    console.log($("#editModal #editdate").val().substr(6,4));
+
+                    refreshCalendar().done(function(){
+                        setTimeout(function(){selectDate($("#editModal #editdate").val().substr(0, 2))}, 1000);
+                    });
+                }
+            });
+    }
+    else
+    {
+        $.ajax({
+            type: "POST",
+            url: 'server/addEvent.php',
+            data: {
+                titre:$("#editModal #edittitre").val(),
+                description:$("#editModal #editdescription").val(),
+                couleur:$("#editModal #editcouleur").val(),
+                date:$("#editModal #editdate").val()
+            }
+        })
+
+            .done(function(data){
+                if(data != true)
+                {
+                    $('#editModal input').each(function(){
+                        $('*.form-group').removeClass('has-error').addClass('has-success');
+                        $('*.error').html('');
+                    });
+                    $.each(data,function(index, value){
+                        console.log($("#editModal #edit"+index).parent());
+                        $("#editModal #edit"+index).parent().addClass('has-error');
+                        $("#editModal #edit"+index +' ~ .error').html(value);
+                        $("#editModal #edit"+index).animateCss("shake");
+                    });
+                }
+                else {
+                    $('#editModal').modal('hide');
+                    setMonth($("#editModal #editdate").val().substr(3,2));
+                    console.log($("#editModal #editdate").val().substr(3,2));
+                    setYear($("#editModal #editdate").val().substr(6, 4));
+                    console.log($("#editModal #editdate").val().substr(6,4));
+
+                    refreshCalendar().done(function(){
+                        setTimeout(function(){selectDate($("#editModal #editdate").val().substr(0, 2))}, 1000);
+                    });
+                }
+            });
+    }
+
+});
+function selectDate(n)
+{
+    $('[data-date="'+ parseInt(n) +'"]').click();
+}
 $("#deleteBtn").click(function(){
+    var cur =$(".current .date").html();
+
     $.post("server/delete.php",
     {
         id: $("#deleteBtn").data('id'),
     },
     function(data, status){
         $('#deleteModal').modal('hide');
-        $(".current").click();
-
+        setYear(getYear());
+        setMonth(getMonth());
+        refreshCalendar().done(function(){setTimeout(function(){selectDate(cur);}, 1000)});
     });
 });
 $(document).keydown(function(e) {
@@ -137,6 +270,7 @@ function today()
     oldYear = d.getFullYear();
     setMonth(d.getMonth()+1);
     setYear(d.getFullYear());
+    refreshCalendar();
 }
 function nextMonth()
 {
@@ -149,6 +283,8 @@ function nextMonth()
     {
         setMonth((getMonth()+1));
     }
+    refreshCalendar();
+
 }
 function previousMonth()
 {
@@ -161,6 +297,8 @@ function previousMonth()
     {
         setMonth(getMonth()-1);
     }
+    refreshCalendar();
+
 }
 
 function getYear()
@@ -180,18 +318,17 @@ function setYear(year)
 
     $($('#years [data-year='+ year +']').parent()).addClass('active');
 
-    refreshCalendar();
 }
 function setMonth(element)
 {
     oldMonth = getMonth();
     oldYear =  getYear();
-
+    element = parseInt(element);
     $('#months .active ').removeClass('active');
     $($('#months [data-month='+ element +']').parent()).addClass('active');
     $('#dropMonth').html(months[getMonth()-1]);
 
-    refreshCalendar();
+    //refreshCalendar();
 }
 function refreshCalendar()
 {
@@ -199,6 +336,7 @@ function refreshCalendar()
     var newYear = getYear();
     var animationEnd = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
     var animationStart;
+    var animationLast;
 
     $('#accordion').html('<h4 class="text-center animated fadeIn">Aucune date sélectionnée</h4>')
     if(newYear > oldYear) {
@@ -221,17 +359,20 @@ function refreshCalendar()
         }
         else
         {
-            animationStart = "fadeIn";
+            animationStart = "fadeOut";
             animationLast = "fadeIn";
         }
     }
-    console.log('test');
+    console.log('Nouveau Calendrier');
 
     $.ajax({
             url: "server/api.php?year="+newYear+"&month="+newMonth
         })
         .done(function( data ) {
+            console.log('Début animation');
+
             $('.cal').addClass('animated ' + animationStart).one(animationEnd, function() {
+                console.log('Fin animation');
                 $('.cal').removeClass('animated ' + animationStart);
                 $("#weeks").html("");
                 $('#calendar thead').html('<tr class="active"><th>LUN</th><th>MAR</th><th>MER</th><th>JEU</th><th>VEN</th><th>SAM</th><th>DIM</th></tr>');
@@ -268,9 +409,11 @@ function refreshCalendar()
                 });
 
                 $('#mois').html(months[newMonth-1] + ' ' +getYear());
-                $('.cal').animateCss(animationLast)});
-                $('#accordion').html('<h5 class="text-center animated fadeIn">Aucune date sélectionnée</h5>');
+                $('.cal').animateCss(animationLast)
+            });
+            $('#accordion').html('<h5 class="text-center animated fadeIn">Aucune date sélectionnée</h5>');
 
 
         });
+    return $.Deferred().resolve();
 };

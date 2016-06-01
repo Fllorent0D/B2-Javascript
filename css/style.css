@@ -16,12 +16,30 @@ body{
     cursor: pointer;
 
 }
+.select2-results__option
+{
+    padding-top: 17px;
+}
+h4 a{
+    margin-bottom: 70px;
+
+    text-decoration: none;
+}
+.dots .text{
+    font-size: 12px;
+    color: #0f0f0f;
+}
 .container-fluid{
     padding-right: 0px;
     height: 100%;
 }
 .firstCol{
     padding-top: 20px;
+}
+.shake {
+    -vendor-animation-duration: 3s;
+    -vendor-animation-delay: 2s;
+    -vendor-animation-iteration-count: infinite;
 }
 .secondCol{
     position: fixed;
@@ -46,7 +64,6 @@ body{
 
 }
 .panel:last-child{
-    margin-bottom: 70px;
 }
 hr.separator {
     border: 0;
@@ -102,9 +119,7 @@ hr.separator {
 {
     table-layout: fixed;
 }
-#fadeOutLeft {
-    -vendor-animation-duration: 0.5s;
-}
+
 .panel-group
 {
     padding-right: 10px;
