@@ -21,6 +21,7 @@ $(function(){
     });
 
     $('#editdate').datepicker({
+        weekStart: 1,
         format: "dd/mm/yyyy",
         language: "fr",
         orientation: "bottom left"
@@ -146,6 +147,7 @@ $("#accordion").on('click', '.editEvent', function(e){
     $("#editModal #edittitre").val($("#event"+id+" a").html());
     $("#editModal #editdescription").val($("#collapse"+id+" .panel-body").html());
     $("#editModal #edittitre").trigger('change');
+    $("#editModal #saveBtn").prop('disabled', true);
 
     $('#editModal').modal('show');
 });
