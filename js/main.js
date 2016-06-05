@@ -2,15 +2,29 @@ months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Ao�
 var oldMonth;
 var oldYear;
 
+/**
+ * Utilisé par le coulorPicker, crée une ligne hmtl pour chaque option du select
+ * @param state
+ * @returns {*|jQuery|HTMLElement}
+ */
 function formatPicker (state) {
     var $state = $('<span class="dots"><span class="text-'+state.id+'">.</span><span class="text"> '+state.text+'</span></span>');
     return $state;
 }
+/**
+ * Init composants
+ * Crée le select avec les mois
+ * Crée le select avec les années
+ * Init le couleur picker
+ * Init le datepicker
+ * Lance le premier calendrier
+ */
+
 $(function(){
     for(var i = 1; i <= 12; i++)
         $('#months').append('<li><a href="#" data-month="'+i+'">'+ months[i-1] +'</a></li>');
         //$('#months').append('<a href="#" class="btn btn-default btn-group-sm month" data-month="'+i+'">'+ months[i-1] +'</a>');
-    for (i = new Date().getFullYear() + 10; i > 1900; i--)
+    for (i = new Date().getFullYear() + 20; i > 1900; i--)
     {
         $('#years').append('<li><a href="#" data-year="'+i+'">'+ i +'</a></li>');
     }
@@ -24,30 +38,60 @@ $(function(){
         weekStart: 1,
         format: "dd/mm/yyyy",
         language: "fr",
-        orientation: "bottom left"
+        orientation: "top left"
     });
 
     refreshCalendar();
-
 });
 
+/**
+ * Evenement
+ * Changement de mois en choissisant dans le select #months
+ */
 $('#months').on('click', 'a',function() {
     setMonth($(this).data('month'));
     refreshCalendar()
 });
+
+/**
+ * evenement
+ * Changement d'année en choissant dans le select #years
+ */
 $('#years').on('click', 'a',function() {
     setYear($(this).data('year'));
     refreshCalendar()
 });
+
+/**
+ * Evenement
+ * Appuie sur le bouton ->
+ */
 $('#next').click(function(){
     nextMonth();
     //setYear(getYear() + 1 );
 });
+
+/**
+ * Evenement
+ * Appuie sur le bouton <-
+ */
 $('#previous').click(function(){
     previousMonth();
    // setYear(getYear() - 1 );
 });
+
+/**
+ * Evenement
+ * Appuie sur le bouton 'Aujourd'hui'
+ */
 $('#today').click(function(){today();});
+
+/**
+ * Evenement
+ * Appuie sur une des cases du tableau/calendrier
+ * Change de mois si on clique hors
+ * Charge les événements à la date choisie
+ */
 $('.calendar').on('click','td', function(){
     var datadate = $(this).data('date');
 
@@ -56,9 +100,14 @@ $('.calendar').on('click','td', function(){
         var date = $('.date', this).html();
 
         if(date < 15)
+        {
             nextMonth();
+        }
         else
+        {
             previousMonth();
+        }
+        setTimeout(function(){selectDate(date)}, 1000);
     }
     else
     {
@@ -93,8 +142,8 @@ $('.calendar').on('click','td', function(){
                                             '<div id="collapse'+val.id+'" class="panel-collapse collapse" role="tabpanel" aria-labelledby="event'+val.id+'">' +
                                                 '<div class="panel-body">'+val.description+'</div> ' +
                                                 '<div class="panel-footer">'+
-                                                    '<button class="btn btn-danger btn-sm deleteEvent" data-id="'+val.id+'">Supprimer</button> '+
-                                                    '<button class="btn btn-info btn-sm editEvent" data-id="'+val.id+'">Modifier</button>'+
+                                                    '<button class="btn btn-danger btn-sm deleteEvent" data-id="'+val.id+'"><i class="fa fa-remove"></i> Supprimer</button> '+
+                                                    '<button class="btn btn-info btn-sm editEvent" data-id="'+val.id+'"><i class="fa fa-pencil"></i> Modifier</button>'+
                                                 '</div>'+
                                             '</div> ' +
                                         '</div>')
@@ -106,31 +155,40 @@ $('.calendar').on('click','td', function(){
                     $('#accordion').append('<hr class="separator"><h4 class="text-center">Pas d\'évènements ce jour</h4>')
                 }
                 $('#accordion').append('<div class="row text-center"><h4 class="addEvent"><i class="fa fa-plus-circle fa-2x" style="cursor: pointer;"></i></h4></div>');
-
                 $('#accordion').animateCss('fadeIn');
 
         });
     }
 });
+
+/**
+ * Evenement
+ * Appuie sur Supprimer
+ * Lance la modal deleteModal
+ */
 $("#accordion").on('click', '.deleteEvent', function(e){
     $("#deleteTitle").html("Supprimer '"+$("#event"+ $(e.target).data("id") +" a").html()+"'");
     $("#deleteBtn").data("id", $(e.target).data("id"));
 
     $('#deleteModal').modal('show');
 });
-$("#editModal input, #editModal textarea, #editModal select").on("change paste keyup", function() {
-    var empty = 1;
 
-    $.each($("*#editModal input, #editModal textarea, #editModal select"), function(index, value){
-        if($(value).val().length== 0 && empty)
-           empty = 0;
-    });
-    if(empty)
-        $("#editModal #saveBtn").attr('disabled', false);
-    else
-        $("#editModal #saveBtn").attr('disabled', true);
+/**
+ * Evenement
+ * on active le bouton 'Enregistrer' dès que l'on modifie un champs dans la modal
+ */
+$("#editModal input, #editModal textarea, #editModal select").on("change paste keyup", function() {
+
+    $("#editModal #saveBtn").attr('disabled', false);
 
 });
+
+/**
+ * Evenement
+ * Appuie sur Modifier
+ * Init inputs/errorLabels
+ * Lance la modal editModal
+ */
 $("#accordion").on('click', '.editEvent', function(e){
     var id = $(e.target).data("id");
     $('#editcouleur').val($(".dots span", $("#event"+ $(e.target).data("id"))).attr('class').substr(5)).trigger('change');
@@ -152,10 +210,11 @@ $("#accordion").on('click', '.editEvent', function(e){
     $('#editModal').modal('show');
 });
 
-function zeroPad(num, places) {
-    var zero = places - num.toString().length + 1;
-    return Array(+(zero > 0 && zero)).join("0") + num;
-}
+/**
+ * Evenement
+ * Appuie sur 'Ajouter un événement'
+ * Si une date est sélectionnée il remplit le champs
+ */
 $('body').on('click', '.addEvent', function(e){
     $("#editTitleModal").html("Ajouter un évènement");
     $("#saveBtn").removeAttr("data-id");
@@ -173,6 +232,12 @@ $('body').on('click', '.addEvent', function(e){
 
     $('#editModal').modal('show');
 });
+
+/**
+ * Evenement
+ * Appuie sur Enregistrer de la editModal
+ * Détermine si c'est un nouvelle event ou une modification
+ */
 $('#saveBtn').click(function(e){
     if(!isNaN($(e.target).attr("data-id"))){
         $.ajax({
@@ -250,10 +315,20 @@ $('#saveBtn').click(function(e){
     }
 
 });
+
+/**
+ * Permet de simuler le click sur une des cases
+ * @param n la date à selectionner
+ */
 function selectDate(n)
 {
     $('[data-date="'+ parseInt(n) +'"]').click();
 }
+
+/**
+ * Evenement
+ * Appuie sur Supprimer de la deleteModal
+ */
 $("#deleteBtn").click(function(){
     var cur =$(".current .date").html();
 
@@ -268,21 +343,37 @@ $("#deleteBtn").click(function(){
         refreshCalendar().done(function(){setTimeout(function(){selectDate(cur);}, 1000)});
     });
 });
+
+/**
+ * Evenement
+ * Gère les touches du clavier
+ * Haut/Bas change l'année
+ * Gauche/Droite change le mois
+ */
 $(document).keydown(function(e) {
     switch(e.which) {
         case 37: // <-
             previousMonth();
             break;
-
+        case 38:
+            setYear(getYear()+1);
+            refreshCalendar();
+            break;
         case 39: // ->
             nextMonth();
+            break;
+        case 40:
+            setYear(getYear()-1);
+            refreshCalendar();
             break;
 
         default: return;
     }
     e.preventDefault();
 });
-
+/**
+ * Configure le calendrier pour afficher la date d'aujourd'hui
+ */
 function today()
 {
     var d = new Date();
@@ -290,8 +381,12 @@ function today()
     oldYear = d.getFullYear();
     setMonth(d.getMonth()+1);
     setYear(d.getFullYear());
-    refreshCalendar();
+    refreshCalendar().done(function(){setTimeout(function(){selectDate(d.getDate());}, 1000)});
+
 }
+/**
+ * Gère le changement au mois suivant
+ */
 function nextMonth()
 {
     if(getMonth() == 12)
@@ -306,6 +401,9 @@ function nextMonth()
     refreshCalendar();
 
 }
+/**
+ * Gère le changement au mois précédent
+ */
 function previousMonth()
 {
     if(getMonth() == 1)
@@ -320,15 +418,26 @@ function previousMonth()
     refreshCalendar();
 
 }
-
+/**
+ * Getter
+ * @returns {Number} l'année
+ */
 function getYear()
 {
     return parseInt($('#dropYear').html());
 }
+/**
+ * Getter
+ * @returns {*|jQuery} le numéro du mois
+ */
 function getMonth()
 {
     return $("#months .active a").data('month');
 }
+/**
+ * Setter
+ * @param year : l'année à mettre
+ */
 function setYear(year)
 {
     oldYear =  getYear();
@@ -339,6 +448,10 @@ function setYear(year)
     $($('#years [data-year='+ year +']').parent()).addClass('active');
 
 }
+/**
+ * Setter
+ * @param element : le numéro du mois
+ */
 function setMonth(element)
 {
     oldMonth = getMonth();
@@ -350,6 +463,13 @@ function setMonth(element)
 
     //refreshCalendar();
 }
+
+/**
+ * Demande le calendrier au serveur
+ * Gère les animations
+ * Gère l'affichage du calendrier
+ * @returns {*} signale pour synchroniser les appels
+ */
 function refreshCalendar()
 {
     var newMonth = getMonth();
@@ -357,8 +477,10 @@ function refreshCalendar()
     var animationEnd = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
     var animationStart;
     var animationLast;
+    var dateSelected = false;
+    if($(".current").length > 0)
+        dateSelected = true;
 
-    $('#accordion').html('<h4 class="text-center animated fadeIn">Aucune date sélectionnée</h4>')
     if(newYear > oldYear) {
         animationStart = "fadeOutLeft";
         animationLast = "fadeInRight";
@@ -428,7 +550,9 @@ function refreshCalendar()
                 $('#mois').html(months[newMonth-1] + ' ' +getYear());
                 $('.cal').animateCss(animationLast)
             });
-            $('#accordion').html('<h5 class="text-center animated fadeIn">Aucune date sélectionnée</h5>');
+
+            if(dateSelected)
+                $('#accordion').html('<h5 class="text-center animated fadeIn">Aucune date sélectionnée</h5>');
 
 
         });
