@@ -39,7 +39,7 @@ if(empty($error))
     $couleur = $_POST['couleur'];
 
     try {
-        $dbh = new PDO('mysql:host=localhost;dbname=javascriptlabo', "root", "root");
+        $dbh = new PDO('mysql:host=localhost;dbname=javascriptlabo', "root", "fca-1995");
         $query = $dbh->prepare('INSERT INTO events (titre, description, couleur, date) VALUES(?, ?, ?, ?)');
         $query->execute([$titre, $description, $couleur, $date->format('Y-m-d')]);
 
@@ -47,6 +47,8 @@ if(empty($error))
         echo json_encode(true);
     } catch (PDOException $e) {
         print "Erreur : " . $e->getMessage() . "<br/>";
+             http_response_code(500);
+
         die();
     }
     http_response_code(200);

@@ -20,12 +20,13 @@ if(isset($_GET['month']) && isset($_GET['year']))
     $year = $_GET['year'];
     $events = [];
     try {
-        $dbh = new PDO('mysql:host=localhost;dbname=javascriptlabo', "root", "root");
+        $dbh = new PDO('mysql:host=localhost;dbname=javascriptlabo', "root", "fca-1995");
         foreach($dbh->query('SELECT * from events') as $row) {
             array_push($events, ["id" => $row["id"], "date" => $row["date"], "title" => $row["titre"], 'color' => $row['couleur'], 'link' => '#']);
         }
         $dbh = null;
     } catch (PDOException $e) {
+        http_response_code(500);
         print "Erreur : " . $e->getMessage() . "<br/>";
         die();
     }

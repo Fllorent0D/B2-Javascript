@@ -43,12 +43,16 @@ class Calendar {
                 {
                     $date = ($lastmonth - $laststart) + $counter;
                     $active = false;
+                    $ldate = $year . '-'.str_pad($month-1, 2, 0, STR_PAD_LEFT) .'-'.str_pad($date, 2, 0, STR_PAD_LEFT);
+
                 }
                 else if(($counter - $start) >= $days)
                 {
                     $date = $nextMonthCounter;
                     $nextMonthCounter++;
                     $active = false;
+                    $ldate = $year . '-'.str_pad($month+1, 2, 0, STR_PAD_LEFT) .'-'.str_pad($date, 2, 0, STR_PAD_LEFT);
+
                 }
                 else
                 {
@@ -57,16 +61,14 @@ class Calendar {
                     if($curday == $date && $curmonth == $month && $curyear == $year)
                         $today = true;
 
-
                     $ldate = $year . '-'.str_pad($month, 2, 0, STR_PAD_LEFT) .'-'.str_pad($date, 2, 0, STR_PAD_LEFT);
-                    foreach ($event as $key => $val)
+                }
+                foreach ($event as $key => $val)
+                {
+                    if ($val['date'] == $ldate)
                     {
-                        if ($val['date'] == $ldate)
-                        {
-                            array_push($eventDate, $val);
-                        }
+                        array_push($eventDate, $val);
                     }
-
                 }
                 $tab["week".$i][$x] = array("number" => $date,"currentMonth" => $active,"today" => $today, "events" => $eventDate);
 

@@ -117,6 +117,8 @@ $('.calendar').on('click','td', function(){
         if($('.current').length)
             $('.current').removeClass('current');
         $(this).addClass('current');
+        $('#accordion').html("");
+
         $.ajax({
 
             url: "server/event.php?year="+year+"&month="+month+"&day="+day
@@ -155,10 +157,14 @@ $('.calendar').on('click','td', function(){
                     $('#accordion').append('<hr class="separator"><h4 class="text-center">Pas d\'évènements ce jour</h4>')
                 }
                 $('#accordion').append('<div class="row text-center"><h4 class="addEvent"><i class="fa fa-plus-circle fa-2x" style="cursor: pointer;"></i></h4></div>');
-                $('#accordion').animateCss('fadeIn');
+
+        }).fail(function(data){
+            $('#accordion').html('<div class="row text-center text-danger"><i class="fa fa-warning fa-3x"></i></div><div class="row"><h4 class="col-md-12">Une erreur est survenue pendant le chargement des événements</h4></div>');
 
         });
     }
+    $('#accordion').animateCss('fadeIn');
+
 });
 
 /**
@@ -351,25 +357,28 @@ $("#deleteBtn").click(function(){
  * Gauche/Droite change le mois
  */
 $(document).keydown(function(e) {
-    switch(e.which) {
-        case 37: // <-
-            previousMonth();
-            break;
-        case 38:
-            setYear(getYear()+1);
-            refreshCalendar();
-            break;
-        case 39: // ->
-            nextMonth();
-            break;
-        case 40:
-            setYear(getYear()-1);
-            refreshCalendar();
-            break;
+    if(!($("#editModal").data('bs.modal') || {}).isShown) { //Check si la modal est ouverte
+        switch (e.which) {
+            case 37: // <-
+                previousMonth();
+                break;
+            case 38:
+                setYear(getYear() + 1);
+                refreshCalendar();
+                break;
+            case 39: // ->
+                nextMonth();
+                break;
+            case 40:
+                setYear(getYear() - 1);
+                refreshCalendar();
+                break;
 
-        default: return;
+            default:
+                return;
+        }
+        e.preventDefault();
     }
-    e.preventDefault();
 });
 /**
  * Configure le calendrier pour afficher la date d'aujourd'hui
@@ -526,7 +535,9 @@ function refreshCalendar()
                             newCell.addClass('notCurrent');
                         else
                             newCell.attr('data-date', val.number);
+
                         var newDay = $("<div class=\"date\">"+val.number+"</div>");
+
                         newCell.append(newDay);
                         if(val.events.length > 0)
                         {
@@ -555,6 +566,10 @@ function refreshCalendar()
                 $('#accordion').html('<h5 class="text-center animated fadeIn">Aucune date sélectionnée</h5>');
 
 
+        })
+        .fail(function()
+        {
+            $('.cal').html('<div class="row text-center text-danger"><i class="fa fa-warning fa-3x"></i></div><div class="row"><h4 class="col-md-12 text-center">Une erreur est survenue pendant le chargement du calendrier</h4></div>');
         });
     return $.Deferred().resolve();
 };

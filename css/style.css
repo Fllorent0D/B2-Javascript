@@ -36,10 +36,29 @@ h4 a{
 .firstCol{
     padding-top: 20px;
 }
-.shake {
-    -vendor-animation-duration: 3s;
-    -vendor-animation-delay: 2s;
-    -vendor-animation-iteration-count: infinite;
+
+#cal .fadeInRight{
+    -webkit-animation-duration: 0.4s;
+    -moz-animation-duration: 0.4s;
+    -o-animation-duration: 0.4s;
+}
+
+#cal .fadeInLeft{
+    -webkit-animation-duration: 0.4s;
+    -moz-animation-duration: 0.4s;
+    -o-animation-duration: 0.4s;
+}
+
+#cal .fadeIn{
+    -webkit-animation-duration: 0.4s;
+    -moz-animation-duration: 0.4s;
+    -o-animation-duration: 0.4s;
+}
+
+#cal .fadeOut{
+    -webkit-animation-duration: 0.4s;
+    -moz-animation-duration: 0.4s;
+    -o-animation-duration: 0.4s;
 }
 .secondCol{
     position: fixed;
@@ -79,9 +98,14 @@ hr.separator {
     padding-bottom: 20px;
  }
  #calendar td
- {;
+ {
     font-size: 16px;
      text-align: center;
+ }
+ #calendar td:not(.current):hover
+ {
+     background-color: rgba(255, 127, 102, 0.08);
+     transition: background-color 0.1s ease;
  }
 #calendar .notCurrent
 {
@@ -109,8 +133,8 @@ hr.separator {
 
 .current{
 
-    background-color: rgba(255, 127, 102, 0.16);
-    transition: background-color 0.3s ease-in-out;
+    background-color: rgba(255, 127, 102, 0.25);
+    transition: background-color 0.2s ease;
 }
 #calendar .badge{
     background-color: #ff7f66;

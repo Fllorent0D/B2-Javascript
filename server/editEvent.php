@@ -45,7 +45,7 @@ if(empty($error))
     $couleur = $_POST['couleur'];
 
     try {
-        $dbh = new PDO('mysql:host=localhost;dbname=javascriptlabo', "root", "root");
+        $dbh = new PDO('mysql:host=localhost;dbname=javascriptlabo', "root", "fca-1995");
         $query = $dbh->prepare('UPDATE events set titre = ?, description = ? , couleur = ?, date = ? where id = ?');
         $query->execute([$titre, $description, $couleur, $date->format('Y-m-d'),$id]);
         $dbh = null;
@@ -54,6 +54,8 @@ if(empty($error))
 
     } catch (PDOException $e) {
         echo json_encode(["Error" =>$e->getMessage()]);
+        http_response_code(500);
+
     }
     http_response_code(200);
     die();
